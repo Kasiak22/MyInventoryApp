@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".AddItem">
+
+    <!-- Add item layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/label"
+            android:textSize="22sp" />
+
+        <!-- Input fields -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="16dp">
+
+            <!-- Product Name field -->
+            <EditText
+                android:id="@+id/edit_pname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/pn"
+                android:inputType="textCapWords" />
+
+            <!--Layout for price and unit-->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <!-- Price field -->
+                <EditText
+                    android:id="@+id/edit_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/pr"
+                    android:inputType="number" />
+
+                <!-- Units for price -->
+                <TextView
+                    android:id="@+id/price_units"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:text="$" />
+            </LinearLayout>
+
+
+            <!-- Quantity field -->
+            <EditText
+                android:id="@+id/edit_quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/qu"
+                android:inputType="number" />
+
+            <!-- Supplier name field -->
+            <EditText
+                android:id="@+id/edit_supplier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/sup"
+                android:inputType="textCapWords" />
+
+            <!-- Supplier phone field -->
+            <EditText
+                android:id="@+id/edit_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/ph"
+                android:inputType="phone"
+                android:maxLength="8" />
+
+            <!-- Save button -->
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="@string/save" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

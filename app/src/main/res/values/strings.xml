@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">MyInventoryApp</string>
+    <!--buttons-->
+    <string name="save">Save item</string>
+    <string name="add">Add new item</string>
+    <string name="list">List of suppliers</string>
+    <string name="back">Back</string>
+    <!---hints-->
+    <string name="label">Fill item details</string>
+    <string name="pn">Product name</string>
+    <string name="pr">Price</string>
+    <string name="qu">Quantity</string>
+    <string name="sup">Supplier name</string>
+    <string name="ph">Supplier\'s phone</string>
+    <string name="main">That\'s all we have:</string>
+</resources>
