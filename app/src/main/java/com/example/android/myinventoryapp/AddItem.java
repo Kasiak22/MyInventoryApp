@@ -97,7 +97,8 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
             quantEdText.setText(Integer.toString(quant));
             priceEdText.setText(Float.toString(price));
 
-    }}
+    }
+    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
