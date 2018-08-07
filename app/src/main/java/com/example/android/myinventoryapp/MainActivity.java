@@ -2,16 +2,21 @@ package com.example.android.myinventoryapp;
 
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.content.CursorLoader;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -27,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int ITEM_LOADER = 0;
     InventoryCursorAdapter mAdapter;
 
+
     @OnClick(R.id.add_button)
     public void add() {
         Intent addIntent = new Intent(MainActivity.this, AddItem.class);
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         startActivity(suppIntent);
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,8 +53,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         ButterKnife.bind(this);
         ListView db_list = (ListView) findViewById(R.id.database);
-        InventoryCursorAdapter mAdapter = new InventoryCursorAdapter(this, null);
+         mAdapter = new InventoryCursorAdapter(this, null);
         db_list.setAdapter(mAdapter);
+
+        db_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent editIntent = new Intent(MainActivity.this, AddItem.class);
+                Uri currentItemUri = ContentUris.withAppendedId(CONTENT_URI, id);
+                editIntent.setData(currentItemUri);
+                startActivity(editIntent);
+            }});
 
 
         getLoaderManager().initLoader(ITEM_LOADER, null, this);
@@ -74,5 +90,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
+
 
 }
