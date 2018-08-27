@@ -1,5 +1,6 @@
 package com.example.android.myinventoryapp;
 
+
 import android.app.LoaderManager;
 import android.content.ContentValues;
 
@@ -13,6 +14,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -28,7 +32,7 @@ import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry
 
 public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-
+    private static final int ITEM_LOADER = 0;
     @BindView(R.id.edit_quantity)
     EditText quantEdText;
     @BindView(R.id.edit_supplier)
@@ -39,7 +43,10 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
     EditText priceEdText;
     @BindView(R.id.edit_pname)
     EditText pNameEdText;
-    private static final int EXISTING_ITEM_LOADER = 0;
+
+    @BindView(R.id.label)
+    TextView label;
+    float  price;
 
     @OnClick(R.id.save_button)
     public void save() {
@@ -57,7 +64,13 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
 
         Intent intent = getIntent();
         mCurrentItemUri = intent.getData();
-        getLoaderManager().initLoader(EXISTING_ITEM_LOADER, null, this);
+
+        if (mCurrentItemUri != null) {
+            label.setText(R.string.update_details);
+            getLoaderManager().initLoader(ITEM_LOADER, null, this);
+        } else {
+            label.setText(R.string.add_details);
+        }
     }
 
     @Override
@@ -76,14 +89,14 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
         if (cursor.moveToFirst()) {
-            // Find the columns of pet attributes that we're interested in
+            // Find the columns number
             int pnameCI = cursor.getColumnIndex(COLUMN_PNAME);
             int quantCI = cursor.getColumnIndex(COLUMN_QUANTITY);
             int priceCI = cursor.getColumnIndex(COLUMN_PRICE);
             int suppCI = cursor.getColumnIndex(COLUMN_SNAME);
             int phoneCI = cursor.getColumnIndex(COLUMN_PHONE);
 
-            // Extract out the value from the Cursor for the given column index
+            // Extract out the value from the Cursor
             String pname = cursor.getString(pnameCI);
             String sname = cursor.getString(suppCI);
             int quant = cursor.getInt(quantCI);
@@ -97,7 +110,7 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
             quantEdText.setText(Integer.toString(quant));
             priceEdText.setText(Float.toString(price));
 
-    }
+        }
     }
 
     @Override
@@ -112,7 +125,6 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
     //activity for adding information to databse
     private void saveData() {
 
-
         //reading info from EditText to String format
         String pnameString = pNameEdText.getText().toString();
         String priceString = priceEdText.getText().toString();
@@ -122,18 +134,18 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
 
 
         if (TextUtils.isEmpty(pnameString) && TextUtils.isEmpty(priceString) && TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(suppString) && TextUtils.isEmpty(phoneString)) {
-            return;
-        } else {
-
+            Toast.makeText(this, R.string.please_fill, Toast.LENGTH_SHORT).show();
+        } else if (TextUtils.isEmpty(pnameString)||TextUtils.isEmpty(priceString)||TextUtils.isEmpty(suppString)||TextUtils.isEmpty(phoneString)){
+            Toast.makeText(this, R.string.not_empty, Toast.LENGTH_SHORT).show();}
+            else {
             ContentValues newItem = new ContentValues();
             //adding to ContentValue
             newItem.put(COLUMN_PNAME, pnameString);
             newItem.put(COLUMN_SNAME, suppString);
             newItem.put(COLUMN_PHONE, phoneString);
 
-            float price = 0;
-            if (!TextUtils.isEmpty(priceString)) {
-                price = Float.parseFloat(priceString);
+              if (!TextUtils.isEmpty(priceString)) {
+             price = Float.parseFloat(priceString);
             }
             newItem.put(COLUMN_PRICE, price);
             int quantity = 0;
@@ -143,18 +155,16 @@ public class AddItem extends AppCompatActivity implements LoaderManager.LoaderCa
             newItem.put(COLUMN_QUANTITY, quantity);
 
             if (mCurrentItemUri == null) {
-                // This is a NEW pet, so insert a new pet into the provider,
-                // returning the content URI for the new pet.
                 newUri = getContentResolver().insert(CONTENT_URI, newItem);
             } else {
                 //Updating
-                long newRowId = getContentResolver().update(mCurrentItemUri, newItem, null, null);
+                getContentResolver().update(mCurrentItemUri, newItem, null, null);
             }
 
             //After adding its going back to MainActivity
-           // Intent backIntent = new Intent(AddItem.this, MainActivity.class);
-            //startActivity(backIntent);
-return;
+            Intent backIntent = new Intent(AddItem.this, MainActivity.class);
+            startActivity(backIntent);}
+
         }
     }
-}
+

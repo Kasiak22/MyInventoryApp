@@ -17,10 +17,10 @@ public class InventoryDbHelper extends SQLiteOpenHelper{
         String SQL_CREATE_STUFF_TABLE =  "CREATE TABLE " + InventoryContract.NewEntry.TABLE_NAME + " ("
                 + InventoryContract.NewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + InventoryContract.NewEntry.COLUMN_PNAME + " TEXT NOT NULL, "
-                + InventoryContract.NewEntry.COLUMN_PRICE + " FLOAT NOT NULL DEFAULT 0, "
-                + InventoryContract.NewEntry.COLUMN_QUANTITY + " INTEGER NOT NULL DEFAULT 0, "
-                + InventoryContract.NewEntry.COLUMN_SNAME + " TEXT, "
-                + InventoryContract.NewEntry.COLUMN_PHONE+ " TEXT);";
+                + InventoryContract.NewEntry.COLUMN_PRICE + " FLOAT NOT NULL, "
+                + InventoryContract.NewEntry.COLUMN_QUANTITY + " INTEGER  DEFAULT 0, "
+                + InventoryContract.NewEntry.COLUMN_SNAME + " TEXT NOT NULL , "
+                + InventoryContract.NewEntry.COLUMN_PHONE+ " TEXT NOT NULL);";
 
         // Execute the SQL statement
         db.execSQL(SQL_CREATE_STUFF_TABLE);

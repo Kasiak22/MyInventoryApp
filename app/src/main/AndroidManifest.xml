@@ -20,7 +20,9 @@
             android:name=".AddItem"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SuppActivity"/>
+            android:name=".DetailActivity"
+            android:screenOrientation="portrait" />
+
         <provider
             android:name=".Data.InventoryProvider"
             android:authorities="com.example.android.myinventoryapp"

@@ -3,22 +3,25 @@ package com.example.android.myinventoryapp.Data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
+
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 
+import com.example.android.myinventoryapp.R;
+
 import static com.example.android.myinventoryapp.Data.InventoryContract.CONTENT_AUTHORITY;
 import static com.example.android.myinventoryapp.Data.InventoryContract.ITEM_PATH;
+import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.COLUMN_PHONE;
 import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.COLUMN_PNAME;
 import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.COLUMN_PRICE;
 import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.COLUMN_QUANTITY;
+import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.COLUMN_SNAME;
 import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.CONTENT_ITEM_TYPE;
 import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.CONTENT_LIST_TYPE;
 import static com.example.android.myinventoryapp.Data.InventoryContract.NewEntry.TABLE_NAME;
@@ -32,7 +35,6 @@ public class InventoryProvider extends ContentProvider {
 
     static {
         sUriMatcher.addURI(CONTENT_AUTHORITY, ITEM_PATH, INVENTORY);
-
         sUriMatcher.addURI(CONTENT_AUTHORITY, ITEM_PATH + "/#", ITEM_ID);
     }
 
@@ -42,6 +44,7 @@ public class InventoryProvider extends ContentProvider {
     public boolean onCreate() {
         mDbHelper = new InventoryDbHelper(getContext());
         return true;
+
     }
 
     @Override
@@ -51,7 +54,7 @@ public class InventoryProvider extends ContentProvider {
         SQLiteDatabase database = mDbHelper.getReadableDatabase();
 
         // This cursor will hold the result of the query
-        Cursor cursor;
+        Cursor cursor = null;
 
         // Figure out if the URI matcher can match the URI to a specific code
         int match = sUriMatcher.match(uri);
@@ -68,9 +71,8 @@ public class InventoryProvider extends ContentProvider {
                         null, null, sortOrder);
                 break;
             default:
-                throw new IllegalArgumentException("Cannot query unknown URI " + uri);
+                throw new IllegalArgumentException(String.valueOf(R.string.unknow_uri) + uri);
         }
-
         // Set notification URI on the Cursor
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -100,7 +102,7 @@ public class InventoryProvider extends ContentProvider {
             case INVENTORY:
                 return insertItem(uri, contentValues);
             default:
-                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+                throw new IllegalArgumentException(String.valueOf(R.string.ins_not_supp));
         }
     }
 
@@ -108,7 +110,7 @@ public class InventoryProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        int rowsDeleted;
+        int rowsDeleted = 0;
         final int match = sUriMatcher.match(uri);
 
         switch (match) {
@@ -123,10 +125,10 @@ public class InventoryProvider extends ContentProvider {
                 rowsDeleted = database.delete(TABLE_NAME, selection, selectionArgs);
                 break;
             default:
-                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+                throw new IllegalArgumentException(String.valueOf(R.string.del_not_supp));
+
         }
-        // If 1 or more rows were deleted, then notify all listeners that the data at the
-        // given URI has changed
+        // If 1 or more rows were deleted notify the change
         if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
@@ -146,22 +148,30 @@ public class InventoryProvider extends ContentProvider {
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateItem(uri, contentValues, selection, selectionArgs);
             default:
-                throw new IllegalArgumentException("Update is not supported for " + uri);
+                throw new IllegalArgumentException(String.valueOf(R.string.upp_not_supp) + uri);
         }
     }
 
     public Uri insertItem(Uri uri, ContentValues values) {
         String pname = values.getAsString(COLUMN_PNAME);
-        if (pname == null) {
-            throw new IllegalArgumentException("This field cannot be empty");
+        if (TextUtils.isEmpty(pname)) {
+            throw new IllegalArgumentException(String.valueOf(R.string.not_empty));
+        }
+        String sname = values.getAsString(COLUMN_SNAME);
+        if (TextUtils.isEmpty(sname)) {
+            throw new IllegalArgumentException(String.valueOf(R.string.not_empty));
+        }
+        String phone = values.getAsString(COLUMN_PHONE);
+        if (TextUtils.isEmpty(phone)) {
+            throw new IllegalArgumentException(String.valueOf(R.string.not_empty));
         }
         Float price = values.getAsFloat(COLUMN_PRICE);
         if (price == null) {
-            throw new IllegalArgumentException("This field cannot be empty");
+            throw new IllegalArgumentException(String.valueOf(R.string.not_empty));
         }
         Integer quantity = values.getAsInteger(COLUMN_QUANTITY);
-        if (quantity == null) {
-            throw new IllegalArgumentException("This field cannot be empty");
+        if (quantity < 0) {
+            throw new IllegalArgumentException(String.valueOf(R.string.not_proper));
         }
 
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
@@ -169,35 +179,43 @@ public class InventoryProvider extends ContentProvider {
 
         Long newRow = database.insert(TABLE_NAME, null, values);
         if (newRow == -1) {
-            Toast.makeText(getContext(), "Nothing is inserted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.not_insert, Toast.LENGTH_SHORT).show();
+            return null;
         }
+
+        getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, newRow);
     }
 
     public int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         if (values.containsKey(COLUMN_PNAME)) {
             String pname = values.getAsString(COLUMN_PNAME);
-            if (pname == null) {
-                throw new IllegalArgumentException("This field cannot be empty");
+            if (pname.isEmpty()) {
+                throw new IllegalArgumentException(String.valueOf(R.string.not_empty));
             }
         }
         if (values.containsKey(COLUMN_PRICE)) {
             Float price = values.getAsFloat(COLUMN_PRICE);
             if (price == null) {
-                throw new IllegalArgumentException("This field cannot be empty");
+                throw new IllegalArgumentException(String.valueOf(R.string.not_empty));
             }
         }
         if (values.containsKey(COLUMN_QUANTITY)) {
             Integer quantity = values.getAsInteger(COLUMN_QUANTITY);
-            if (quantity == null) {
-                throw new IllegalArgumentException("This field cannot be empty");
+            if (quantity < 0) {
+                throw new IllegalArgumentException(String.valueOf(R.string.not_proper));
             }
         }
+
         if (values.size() == 0) {
             return 0;
         }
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         int rowUpdated = database.update(TABLE_NAME, values, selection, selectionArgs);
+        if (rowUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
 
         return rowUpdated;
     }
